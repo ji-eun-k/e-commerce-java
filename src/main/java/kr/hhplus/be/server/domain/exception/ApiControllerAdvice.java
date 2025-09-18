@@ -17,4 +17,9 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(ProductException e) {
         return ResponseEntity.status(e.getHttpStatus()).body(new ErrorResponse(e.getCode(), e.getMessage()));
     }
+
+    @ExceptionHandler(value = UserException.class)
+    public ResponseEntity<ErrorResponse> handleException(UserException e) {
+        return ResponseEntity.status(e.getHttpStatus()).body(new ErrorResponse(e.getCode(), e.getMessage()));
+    }
 }

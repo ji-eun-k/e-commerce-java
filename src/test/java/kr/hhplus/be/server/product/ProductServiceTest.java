@@ -1,4 +1,4 @@
-package kr.hhplus.be.server;
+package kr.hhplus.be.server.product;
 
 
 import kr.hhplus.be.server.application.product.dto.ProductSearchRequest;

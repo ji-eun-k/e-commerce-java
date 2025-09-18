@@ -34,6 +34,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("com.google.guava:guava:32.0.1-jre")
 
     // DB
 	runtimeOnly("com.mysql:mysql-connector-j")
