@@ -8,12 +8,14 @@ import kr.hhplus.be.server.domain.payment.model.Payment;
 import kr.hhplus.be.server.domain.payment.repository.PaymentRepository;
 import kr.hhplus.be.server.domain.user.model.UserBalance;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final UserService userService;
 
+    @Transactional
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
         // 포인트 사용
         UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(paymentRequest.getUserId()).amount(paymentRequest.getTotalPrice()).build();

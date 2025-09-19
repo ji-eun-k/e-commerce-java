@@ -4,6 +4,7 @@ import kr.hhplus.be.server.application.order.dto.OrderItem;
 import kr.hhplus.be.server.application.order.dto.OrderRequest;
 import kr.hhplus.be.server.application.order.dto.OrderResponse;
 import kr.hhplus.be.server.application.order.service.OrderService;
+import kr.hhplus.be.server.application.payment.service.PaymentService;
 import kr.hhplus.be.server.application.product.dto.ProductOrderDetail;
 import kr.hhplus.be.server.application.product.dto.ProductOrderResult;
 import kr.hhplus.be.server.application.product.service.ProductService;
@@ -50,6 +51,9 @@ public class OrderServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private PaymentService paymentService;
 
     private Long userId;
 
