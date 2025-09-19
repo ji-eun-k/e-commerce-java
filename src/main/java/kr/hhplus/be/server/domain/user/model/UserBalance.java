@@ -23,6 +23,14 @@ public class UserBalance {
         return new UserBalance(id, afterChargeBalance);
     }
 
+    public UserBalance useBalance(BigDecimal amount) {
+        validateUseAmount(amount);
+        BigDecimal afterUseBalance = balance.subtract(amount);
+        validateAfterUseAmount(afterUseBalance);
+        return new UserBalance(id, afterUseBalance);
+    }
+
+
     // 충전 금액 검증
     private void validateChargeAmount(BigDecimal amount) {
         if(amount.compareTo(BigDecimal.valueOf(1000)) < 0) {
@@ -34,6 +42,13 @@ public class UserBalance {
         }
     }
 
+    // 사용 금액 검증
+    private void validateUseAmount(BigDecimal amount) {
+        if(amount.compareTo(BigDecimal.ZERO) < 1) {
+            throw new UserException(ErrorCode.INVALID_USE_AMOUNT);
+        }
+    }
+
     // 충전 후 금액 검증 (최대 보유 금액)
     private void validateAfterChargeAmount(BigDecimal afterChargeBalance) {
         if(afterChargeBalance.compareTo(BigDecimal.valueOf(10000000)) > 0) {
@@ -41,4 +56,13 @@ public class UserBalance {
         }
 
     }
+
+    // 사용 후 금액 검증
+    private void validateAfterUseAmount(BigDecimal afterUseBalance) {
+        if(afterUseBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new UserException(ErrorCode.INSUFFICIENT_BALANCE);
+        }
+    }
+
+
 }

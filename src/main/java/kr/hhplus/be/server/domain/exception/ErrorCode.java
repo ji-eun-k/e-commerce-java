@@ -28,6 +28,7 @@ public enum ErrorCode {
 
 
     INVALID_CHARGE_AMOUNT("INVALID_CHARGE_AMOUNT", "유효하지 않은 충전 금액입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_USE_AMOUNT("INVALID_USE_AMOUNT", "유효하지 않은 사용 금액입니다.", HttpStatus.BAD_REQUEST),
     MIN_CHARGE_AMOUNT("MIN_CHARGE_AMOUNT", "1회 최소 충전 가능 금액은 1,000원입니다.", HttpStatus.BAD_REQUEST),
     MAX_CHARGE_AMOUNT("MAX_CHARGE_AMOUNT", "1회 최대 충전 가능 금액은 5,000,000원입니다.", HttpStatus.BAD_REQUEST),
     EXCEED_MAX_BALANCE("EXCEED_MAX_BALANCE", "최대 보유 가능 잔액은 10,000,000원입니다.", HttpStatus.UNPROCESSABLE_ENTITY), // 클라이언트가 올바른 요청을 보냈지만, 서버가 요청을 처리할 수 없음 (서버 내부 정책에 의하여 처리 불가)

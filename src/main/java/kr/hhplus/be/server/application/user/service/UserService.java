@@ -59,6 +59,42 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public UserBalance useUserBalance(UserBalanceRequest userBalanceRequest) {
+        Lock lock = stripedLocks.get(userBalanceRequest.getId());
+
+        boolean acquired = false;
+
+        try {
+            acquired = lock.tryLock(5, TimeUnit.SECONDS);
+
+            if (!acquired) {
+                throw new ConcurrentModificationException(
+                        "다른 거래가 진행 중입니다. 잠시 후 다시 시도해주세요."
+                );
+            }
+
+            UserBalance userBalance = getUserBalance(userBalanceRequest.getId());
+
+            UserBalance afterUseUserBalance = userBalance.useBalance(userBalanceRequest.getAmount());
+            int cnt = userRepository.useUserBalance(afterUseUserBalance); // 잔액 사용
+
+            if (cnt == 0) {
+                throw new UserException(ErrorCode.CHARGE_BALANCE_FAILED);
+            }
+            userRepository.insertUserBalanceHistory(afterUseUserBalance.getId(), TransactionType.USE, userBalanceRequest.getAmount());
+
+            return afterUseUserBalance;
+        } catch (InterruptedException e) {
+            log.error("사용 오류 발생");
+            throw new RuntimeException(e);
+        } finally {
+            if (acquired) {
+                lock.unlock();
+            }
+        }
+    }
+
     public UserBalance getUserBalance(Long userId){
         UserBalance userBalance = userRepository.getUserBalance(userId);
         if (ObjectUtils.isEmpty(userBalance)) {
@@ -66,4 +102,6 @@ public class UserService {
         }
         return userBalance;
     }
+
+
 }

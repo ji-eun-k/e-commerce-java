@@ -32,21 +32,21 @@ public class UserServiceTest {
 
     private Long id;
     private BigDecimal balance;
-    private BigDecimal chargeAmount;
+    private BigDecimal amount;
 
     @BeforeEach
     public void setup() {
         id = 1L;
         balance = BigDecimal.valueOf(200000);
-        chargeAmount = BigDecimal.valueOf(100000);
+        amount = BigDecimal.valueOf(100000);
     }
 
     @Test
     public void 잔액_충전_성공(){
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
-                .id(id).amount(chargeAmount).build();
+                .id(id).amount(amount).build();
         UserBalance userBalance = new UserBalance(id, balance);
-        UserBalance afterChargeUserBalance = new UserBalance(id, balance.add( chargeAmount));
+        UserBalance afterChargeUserBalance = new UserBalance(id, balance.add( amount));
 
         when(userRepository.getUserBalance(id)).thenReturn(userBalance);
         when(userRepository.chargeUserBalance(any(UserBalance.class))).thenReturn(1);
@@ -60,7 +60,7 @@ public class UserServiceTest {
     @Test
     public void 잔액_충전_실패_사용자없음(){
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
-                .id(id).amount(chargeAmount).build();
+                .id(id).amount(amount).build();
         when(userRepository.getUserBalance(id)).thenReturn(null);
 
         UserException exception = assertThrows(
@@ -77,7 +77,7 @@ public class UserServiceTest {
     @Test
     public void 잔액_충전_실패_보유가능잔액초과(){
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
-                .id(id).amount(chargeAmount).build();
+                .id(id).amount(amount).build();
         UserBalance userBalance = new UserBalance(id, balance.multiply(BigDecimal.valueOf(100)));
 
         when(userRepository.getUserBalance(id)).thenReturn(userBalance);
@@ -96,7 +96,7 @@ public class UserServiceTest {
     @Test
     public void 잔액_충전_실패_충전금액오류(){
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
-                .id(id).amount(chargeAmount.multiply(BigDecimal.valueOf(100))).build();
+                .id(id).amount(amount.multiply(BigDecimal.valueOf(100))).build();
         UserBalance userBalance = new UserBalance(id, balance);
 
         when(userRepository.getUserBalance(id)).thenReturn(userBalance);
@@ -110,6 +110,57 @@ public class UserServiceTest {
         assertThat(exception.getMessage()).contains("1회 최대 충전 가능 금액");
         assertThat(exception.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 
+    }
+    
+    
+    @Test
+    public void 잔액_사용_성공(){
+        UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(amount).build();
+
+        UserBalance userBalance = new UserBalance(id, balance);
+        UserBalance afterUseUserBalance = new UserBalance(id, balance.subtract( amount));
+
+        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
+        when(userRepository.useUserBalance(any(UserBalance.class))).thenReturn(1);
+
+        UserBalance userBalanceResult = userService.useUserBalance(userBalanceRequest);
+
+        assertThat(userBalanceResult.getBalance()).isEqualTo(afterUseUserBalance.getBalance());
+        assertThat(userBalanceResult.getId()).isEqualTo(afterUseUserBalance.getId());
+    }
+
+    @Test
+    public void 잔액_사용_실패_사용금액검증(){
+        UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(BigDecimal.ZERO).build();
+        UserBalance userBalance = new UserBalance(id, balance);
+
+        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
+
+        UserException exception = assertThrows(
+                UserException.class,
+                () -> userService.useUserBalance(userBalanceRequest)
+        );
+
+        assertThat(exception.getCode()).isEqualTo("INVALID_USE_AMOUNT");
+        assertThat(exception.getMessage()).contains("유효하지 않은 사용 금액");
+        assertThat(exception.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void 잔액_사용_실패_잔액검증(){
+        UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(amount).build();
+        UserBalance userBalance = new UserBalance(id, BigDecimal.ZERO);
+
+        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
+
+        UserException exception = assertThrows(
+                UserException.class,
+                () -> userService.useUserBalance(userBalanceRequest)
+        );
+
+        assertThat(exception.getCode()).isEqualTo("INSUFFICIENT_BALANCE");
+        assertThat(exception.getMessage()).contains("잔액이 부족");
+        assertThat(exception.getHttpStatus()).isEqualTo(HttpStatus.CONFLICT);
     }
 
 

@@ -13,4 +13,5 @@ public interface UserRepository {
 
     void insertUserBalanceHistory(Long id, TransactionType type, BigDecimal amount);
 
+    int useUserBalance(UserBalance afterUseUserBalance);
 }
