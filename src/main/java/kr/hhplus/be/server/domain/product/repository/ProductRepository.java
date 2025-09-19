@@ -1,10 +1,18 @@
 package kr.hhplus.be.server.domain.product.repository;
 
+import jakarta.persistence.LockModeType;
 import kr.hhplus.be.server.application.product.dto.ProductSearchRequest;
 import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.model.ProductInventory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 
 public interface ProductRepository {
     Page<Product> getProducts(ProductSearchRequest productSearchRequest, Pageable pageable);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE) // 비관적락으로 재고 정합성 확보
+    ProductInventory getProductInventory(Long productId);
+
+    int saveProductInventory(ProductInventory productInventory);
 }

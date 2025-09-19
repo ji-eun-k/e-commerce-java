@@ -8,6 +8,7 @@ import kr.hhplus.be.server.domain.user.enumtype.TransactionType;
 import kr.hhplus.be.server.domain.user.model.UserBalance;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
@@ -15,6 +16,7 @@ import java.util.ConcurrentModificationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -36,10 +38,7 @@ public class UserService {
                 );
             }
 
-            UserBalance userBalance = userRepository.getUserBalance(userBalanceRequest.getId());
-            if (ObjectUtils.isEmpty(userBalance)) {
-                throw new UserException(ErrorCode.USER_NOT_FOUND);
-            }
+            UserBalance userBalance = getUserBalance(userBalanceRequest.getId());
 
             UserBalance afterChargeUserBalance = userBalance.chargeBalance(userBalanceRequest.getAmount());
             int cnt = userRepository.chargeUserBalance(afterChargeUserBalance); // 잔액 충전
@@ -51,12 +50,20 @@ public class UserService {
 
             return afterChargeUserBalance;
         } catch (InterruptedException e) {
+            log.error("충전 오류 발생");
             throw new RuntimeException(e);
         } finally {
             if (acquired) {
                 lock.unlock();
             }
         }
+    }
 
+    public UserBalance getUserBalance(Long userId){
+        UserBalance userBalance = userRepository.getUserBalance(userId);
+        if (ObjectUtils.isEmpty(userBalance)) {
+            throw new UserException(ErrorCode.USER_NOT_FOUND);
+        }
+        return userBalance;
     }
 }

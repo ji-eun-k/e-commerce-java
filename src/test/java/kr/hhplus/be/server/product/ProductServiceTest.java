@@ -40,6 +40,7 @@ public class ProductServiceTest {
     private Integer pageNo;
     private LocalDateTime fixTime;
     Page<Product> mockProducts;
+
     @BeforeEach
     public void setup() {
         size = 5;

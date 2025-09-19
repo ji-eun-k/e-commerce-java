@@ -21,7 +21,7 @@ public class ProductSearchRequest {
     private Integer size;
     private Integer pageNo;
 
-    public void validate() {
+    public void validation() {
         if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new ProductException(ErrorCode.MIN_PRICE);
         }
