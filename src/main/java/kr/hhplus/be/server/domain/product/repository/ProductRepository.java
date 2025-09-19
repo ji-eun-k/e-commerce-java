@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
 
+import java.math.BigDecimal;
+
 public interface ProductRepository {
     Page<Product> getProducts(ProductSearchRequest productSearchRequest, Pageable pageable);
 
@@ -15,4 +17,6 @@ public interface ProductRepository {
     ProductInventory getProductInventory(Long productId);
 
     int saveProductInventory(ProductInventory productInventory);
+
+    BigDecimal getProductPrice(Long productId);
 }

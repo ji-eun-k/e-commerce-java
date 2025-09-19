@@ -1,14 +1,17 @@
 package kr.hhplus.be.server.order;
 
-import kr.hhplus.be.server.application.order.dto.OrderProduct;
+import kr.hhplus.be.server.application.order.dto.OrderItem;
 import kr.hhplus.be.server.application.order.dto.OrderRequest;
 import kr.hhplus.be.server.application.order.dto.OrderResponse;
 import kr.hhplus.be.server.application.order.service.OrderService;
+import kr.hhplus.be.server.application.product.dto.ProductOrderDetail;
+import kr.hhplus.be.server.application.product.dto.ProductOrderResult;
 import kr.hhplus.be.server.application.product.service.ProductService;
+import kr.hhplus.be.server.application.user.service.UserService;
+import kr.hhplus.be.server.domain.exception.OrderException;
+import kr.hhplus.be.server.domain.order.model.Order;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.product.model.ProductInventory;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
-import kr.hhplus.be.server.domain.user.model.UserBalance;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +19,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -30,8 +36,11 @@ public class OrderServiceTest {
     @InjectMocks
     private OrderService orderService;
 
-    @InjectMocks
+    @Mock
     private ProductService productService;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private OrderRepository orderRepository;
@@ -52,27 +61,38 @@ public class OrderServiceTest {
 
     @Test
     public void 주문_생성_테스트(){
-        OrderProduct orderProduct1 = OrderProduct.builder().productId(1L).quantity(2).price(BigDecimal.valueOf(10000)).build();
-        OrderProduct orderProduct2 = OrderProduct.builder().productId(3L).quantity(1).price(BigDecimal.valueOf(54000)).build();
+        OrderItem orderItem1 = OrderItem.builder().productId(1L).quantity(2).build();
+        OrderItem orderItem2 = OrderItem.builder().productId(3L).quantity(1).build();
 
-        BigDecimal totalPrice = BigDecimal.valueOf(10000).multiply(BigDecimal.valueOf(2)).add(BigDecimal.valueOf(54000));
+        List<ProductOrderDetail> productOrderDetails = new ArrayList<>();
+        productOrderDetails.add(ProductOrderDetail.of(orderItem1, BigDecimal.valueOf(10000)));
+        productOrderDetails.add(ProductOrderDetail.of(orderItem2, BigDecimal.valueOf(50000)));
 
-        OrderRequest orderRequest = OrderRequest.builder().userId(userId).orderProducts(List.of(orderProduct1, orderProduct2)).build();
+        BigDecimal totalPrice = BigDecimal.valueOf(10000).multiply(BigDecimal.valueOf(2)).add(BigDecimal.valueOf(50000));
 
-        when(userRepository.getUserBalance(userId)).thenReturn(new UserBalance(userId, BigDecimal.valueOf(64000)));
-        // TODO : DB에 저장된 상품 가격 가져와서 매핑하고, 총 결제 금액 계산
-        when(productRepository.getProductPrice(1L)).thenReturn(BigDecimal.valueOf(10000));
-        when(productRepository.getProductPrice(3L)).thenReturn(BigDecimal.valueOf(54000));
-        when(orderRepository.saveOrder(any(Order.class))).thenReturn(1L);
-        when(productRepository.getProductInventory(1L)).thenReturn(ProductInventory.builder().productId(1L).inventory(5).build());
-        when(productRepository.getProductInventory(3L)).thenReturn(ProductInventory.builder().productId(3L).inventory(5).build());
+        OrderRequest orderRequest = OrderRequest.builder().userId(userId).orderItems(List.of(orderItem1, orderItem2)).build();
+        ProductOrderResult productOrderResult = ProductOrderResult.of(totalPrice, productOrderDetails);
 
+        when(orderRepository.save(any(Order.class))).thenReturn(1L);
+        when(productService.getProductOrderPrice(orderRequest.getOrderItems())).thenReturn(productOrderResult);
 
         OrderResponse orderResponse = orderService.createOrder(orderRequest);
 
-
         assertThat(orderResponse.getOrderId()).isEqualTo(1L);
-        assertThat(orderResponse.getFinalPrice()).isEqualTo(totalPrice);
+        assertThat(orderResponse.getTotalPrice()).isEqualTo(totalPrice);
 
+    }
+
+    @Test
+    public void 주문_생성_실패_상품정보_없음(){
+        OrderRequest orderRequest = OrderRequest.builder().userId(userId).orderItems(List.of()).build();
+
+        OrderException exception = assertThrows(
+                OrderException.class, () -> orderService.createOrder(orderRequest)
+        );
+
+        assertThat(exception.getCode()).isEqualTo("ORDER_PRODUCT_MISSING");
+        assertThat(exception.getMessage()).contains("주문 상품이 없습니다.");
+        assertThat(exception.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }

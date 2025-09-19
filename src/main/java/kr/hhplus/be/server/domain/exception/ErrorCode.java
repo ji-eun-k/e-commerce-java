@@ -22,7 +22,7 @@ public enum ErrorCode {
     DUPLICATE_PAYMENT("DUPLICATE_PAYMENT", "이미 결제가 완료되었습니다.", HttpStatus.CONFLICT),
 
 
-    PRICE_NOT_MATCH("PRICE_NOT_MATCH", "주문 금액이 정확하지 않습니다.", HttpStatus.BAD_REQUEST),
+    ORDER_PRODUCT_MISSING("ORDER_PRODUCT_MISSING", "주문 상품이 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_QUANTITY("INVALID_QUANTITY", "상품을 1개 이상 주문해주세요.", HttpStatus.BAD_REQUEST),
 
 
