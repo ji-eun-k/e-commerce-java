@@ -1,12 +1,11 @@
 package kr.hhplus.be.server.payment;
 
-import kr.hhplus.be.server.application.payment.dto.PaymentRequest;
-import kr.hhplus.be.server.application.payment.dto.PaymentResponse;
-import kr.hhplus.be.server.application.payment.service.PaymentService;
-import kr.hhplus.be.server.application.user.dto.UserBalanceRequest;
-import kr.hhplus.be.server.application.user.service.UserService;
-import kr.hhplus.be.server.domain.payment.model.Payment;
-import kr.hhplus.be.server.domain.payment.repository.PaymentRepository;
+import kr.hhplus.be.server.payment.application.dto.PaymentRequest;
+import kr.hhplus.be.server.payment.application.dto.PaymentResponse;
+import kr.hhplus.be.server.payment.application.service.PaymentService;
+import kr.hhplus.be.server.user.application.service.UserService;
+import kr.hhplus.be.server.payment.domain.model.Payment;
+import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

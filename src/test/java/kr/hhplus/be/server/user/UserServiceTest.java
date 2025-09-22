@@ -1,11 +1,10 @@
 package kr.hhplus.be.server.user;
 
-import kr.hhplus.be.server.application.user.dto.UserBalanceRequest;
-import kr.hhplus.be.server.application.user.service.UserService;
-import kr.hhplus.be.server.domain.exception.ProductException;
-import kr.hhplus.be.server.domain.exception.UserException;
-import kr.hhplus.be.server.domain.user.model.UserBalance;
-import kr.hhplus.be.server.domain.user.repository.UserRepository;
+import kr.hhplus.be.server.user.application.dto.UserBalanceRequest;
+import kr.hhplus.be.server.user.application.service.UserService;
+import kr.hhplus.be.server.config.exception.UserException;
+import kr.hhplus.be.server.user.domain.model.UserBalance;
+import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,16 +1,16 @@
 package kr.hhplus.be.server.product;
 
 
-import kr.hhplus.be.server.application.order.dto.OrderItem;
-import kr.hhplus.be.server.application.product.dto.ProductOrderDetail;
-import kr.hhplus.be.server.application.product.dto.ProductOrderResult;
-import kr.hhplus.be.server.application.product.dto.ProductSearchRequest;
-import kr.hhplus.be.server.application.product.service.ProductService;
-import kr.hhplus.be.server.domain.exception.ProductException;
-import kr.hhplus.be.server.domain.product.enumtype.ProductCategory;
-import kr.hhplus.be.server.domain.product.model.Product;
-import kr.hhplus.be.server.domain.product.model.ProductInventory;
-import kr.hhplus.be.server.domain.product.repository.ProductRepository;
+import kr.hhplus.be.server.order.application.dto.OrderItem;
+import kr.hhplus.be.server.product.application.dto.ProductOrderDetail;
+import kr.hhplus.be.server.product.application.dto.ProductOrderResult;
+import kr.hhplus.be.server.product.application.dto.ProductSearchRequest;
+import kr.hhplus.be.server.product.application.service.ProductService;
+import kr.hhplus.be.server.config.exception.ProductException;
+import kr.hhplus.be.server.product.domain.enumtype.ProductCategory;
+import kr.hhplus.be.server.product.domain.model.Product;
+import kr.hhplus.be.server.product.domain.model.ProductInventory;
+import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
