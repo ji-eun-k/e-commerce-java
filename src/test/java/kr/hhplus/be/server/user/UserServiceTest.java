@@ -4,7 +4,7 @@ import kr.hhplus.be.server.user.application.dto.UserBalanceRequest;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.config.exception.UserException;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
-import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.application.port.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -5,7 +5,7 @@ import kr.hhplus.be.server.payment.application.dto.PaymentResponse;
 import kr.hhplus.be.server.payment.application.service.PaymentService;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.payment.domain.model.Payment;
-import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
+import kr.hhplus.be.server.payment.application.port.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

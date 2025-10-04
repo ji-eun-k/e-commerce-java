@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.product.domain.repository;
+package kr.hhplus.be.server.product.application.port;
 
 import jakarta.persistence.LockModeType;
 import kr.hhplus.be.server.product.application.dto.ProductSearchRequest;

@@ -9,7 +9,7 @@ import kr.hhplus.be.server.product.application.dto.ProductOrderResult;
 import kr.hhplus.be.server.product.application.service.ProductService;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.order.domain.model.Order;
-import kr.hhplus.be.server.order.domain.repository.OrderRepository;
+import kr.hhplus.be.server.order.application.port.OrderRepository;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;

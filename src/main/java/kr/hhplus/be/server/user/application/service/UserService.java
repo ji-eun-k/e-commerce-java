@@ -6,7 +6,7 @@ import kr.hhplus.be.server.config.exception.ErrorCode;
 import kr.hhplus.be.server.config.exception.UserException;
 import kr.hhplus.be.server.user.domain.enumtype.TransactionType;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
-import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.application.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;

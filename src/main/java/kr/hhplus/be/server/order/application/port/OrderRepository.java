@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.order.domain.repository;
+package kr.hhplus.be.server.order.application.port;
 
 import kr.hhplus.be.server.order.domain.model.Order;
 

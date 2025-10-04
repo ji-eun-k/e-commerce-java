@@ -6,7 +6,7 @@ import kr.hhplus.be.server.product.application.dto.ProductOrderResult;
 import kr.hhplus.be.server.product.application.dto.ProductSearchRequest;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductInventory;
-import kr.hhplus.be.server.product.domain.repository.ProductRepository;
+import kr.hhplus.be.server.product.application.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

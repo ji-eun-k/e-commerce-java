@@ -10,7 +10,7 @@ import kr.hhplus.be.server.config.exception.ProductException;
 import kr.hhplus.be.server.product.domain.enumtype.ProductCategory;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductInventory;
-import kr.hhplus.be.server.product.domain.repository.ProductRepository;
+import kr.hhplus.be.server.product.application.port.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;

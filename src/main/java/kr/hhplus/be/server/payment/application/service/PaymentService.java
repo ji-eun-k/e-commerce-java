@@ -5,7 +5,7 @@ import kr.hhplus.be.server.payment.application.dto.PaymentResponse;
 import kr.hhplus.be.server.user.application.dto.UserBalanceRequest;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.payment.domain.model.Payment;
-import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
+import kr.hhplus.be.server.payment.application.port.PaymentRepository;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;

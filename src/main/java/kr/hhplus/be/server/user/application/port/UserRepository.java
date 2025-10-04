@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.repository;
+package kr.hhplus.be.server.user.application.port;
 
 import kr.hhplus.be.server.user.domain.enumtype.TransactionType;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
