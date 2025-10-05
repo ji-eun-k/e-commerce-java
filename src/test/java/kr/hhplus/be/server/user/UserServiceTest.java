@@ -59,7 +59,7 @@ public class UserServiceTest {
         UserBalance afterChargeUserBalance = new UserBalance(id, balance.add( amount));
 
         when(userPort.getUserBalance(id)).thenReturn(userBalance);
-        when(userPort.chargeUserBalance(any(UserBalance.class))).thenReturn(1);
+        when(userPort.save(any(UserBalance.class))).thenReturn(1);
 
         UserBalance userBalanceResult = userService.chargeUserBalance(chargeBalanceRequest);
 
@@ -143,7 +143,7 @@ public class UserServiceTest {
         UserBalance afterUseUserBalance = new UserBalance(id, balance.subtract( amount));
 
         when(userPort.getUserBalance(id)).thenReturn(userBalance);
-        when(userPort.useUserBalance(any(UserBalance.class))).thenReturn(1);
+        when(userPort.save(any(UserBalance.class))).thenReturn(1);
 
         UserBalance userBalanceResult = userService.useUserBalance(userBalanceRequest);
 

@@ -9,9 +9,7 @@ public interface UserPort {
 
     UserBalance getUserBalance(Long id);
 
-    int chargeUserBalance(UserBalance userBalance);
-
     void insertUserBalanceHistory(Long id, TransactionType type, BigDecimal amount);
 
-    int useUserBalance(UserBalance afterUseUserBalance);
+    int save(UserBalance userBalance);
 }

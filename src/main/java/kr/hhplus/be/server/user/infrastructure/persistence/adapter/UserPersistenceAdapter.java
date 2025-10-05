@@ -26,17 +26,12 @@ public class UserPersistenceAdapter implements UserPort {
     }
 
     @Override
-    public int chargeUserBalance(UserBalance userBalance) {
+    public int save(UserBalance userBalance) {
         return 0;
     }
 
     @Override
     public void insertUserBalanceHistory(Long id, TransactionType type, BigDecimal amount) {
 
-    }
-
-    @Override
-    public int useUserBalance(UserBalance afterUseUserBalance) {
-        return 0;
     }
 }
