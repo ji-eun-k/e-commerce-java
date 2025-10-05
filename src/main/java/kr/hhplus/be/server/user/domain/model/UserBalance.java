@@ -14,25 +14,22 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class UserBalance {
     private Long id;
+    private String name;
     private BigDecimal balance;
-
-    public static UserBalance create(Long id, BigDecimal balance){
-        return new UserBalance(id, balance);
-    }
 
     // 잔액 충전
     public UserBalance chargeBalance(BigDecimal amount) {
         validateChargeAmount(amount);
         BigDecimal afterChargeBalance = balance.add(amount);
         validateAfterChargeAmount(afterChargeBalance);
-        return new UserBalance(id, afterChargeBalance);
+        return new UserBalance(id, name, afterChargeBalance);
     }
 
     public UserBalance useBalance(BigDecimal amount) {
         validateUseAmount(amount);
         BigDecimal afterUseBalance = balance.subtract(amount);
         validateAfterUseAmount(afterUseBalance);
-        return new UserBalance(id, afterUseBalance);
+        return new UserBalance(id, name, afterUseBalance);
     }
 
 

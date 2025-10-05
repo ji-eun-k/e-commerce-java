@@ -30,4 +30,11 @@ public class BalanceTransactionEntity {
     @CreatedDate
     LocalDateTime transactionAt;
 
+    public BalanceTransactionEntity(UserEntity user, TransactionType transactionType, BigDecimal amount, BigDecimal balance) {
+        this.user = user;
+        this.transactionType = transactionType;
+        this.amount = amount;
+        this.balance = balance;
+    }
+
 }

@@ -3,6 +3,7 @@ package kr.hhplus.be.server.user;
 import kr.hhplus.be.server.user.application.dto.UserBalanceRequest;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.config.exception.UserException;
+import kr.hhplus.be.server.user.domain.enumtype.TransactionType;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
 import kr.hhplus.be.server.user.application.port.UserPort;
 import kr.hhplus.be.server.user.infrastructure.persistence.adapter.UserPersistenceAdapter;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,12 +41,14 @@ public class UserServiceTest {
     private UserService userService;
 
     private Long id;
+    private String name;
     private BigDecimal balance;
     private BigDecimal amount;
 
     @BeforeEach
     public void setup() {
         id = 1L;
+        name = "name";
         balance = BigDecimal.valueOf(200000);
         amount = BigDecimal.valueOf(100000);
     }
@@ -55,11 +59,11 @@ public class UserServiceTest {
 
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
                 .id(id).amount(amount).build();
-        UserBalance userBalance = new UserBalance(id, balance);
-        UserBalance afterChargeUserBalance = new UserBalance(id, balance.add( amount));
+        UserBalance userBalance = new UserBalance(id, name, balance);
+        UserBalance afterChargeUserBalance = new UserBalance(id, name, balance.add( amount));
 
         when(userPort.getUserBalance(id)).thenReturn(userBalance);
-        when(userPort.save(any(UserBalance.class))).thenReturn(1);
+        when(userPort.save(any(UserBalance.class), eq(TransactionType.CHARGE), eq(amount))).thenReturn(afterChargeUserBalance);
 
         UserBalance userBalanceResult = userService.chargeUserBalance(chargeBalanceRequest);
 
@@ -93,7 +97,7 @@ public class UserServiceTest {
 
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
                 .id(id).amount(amount).build();
-        UserEntity userEntity = new UserEntity(id, balance.multiply(BigDecimal.valueOf(100)));
+        UserEntity userEntity = new UserEntity(id, name, balance.multiply(BigDecimal.valueOf(100)));
 
         when(userRepo.findById(id)).thenReturn(Optional.of(userEntity));
 
@@ -114,9 +118,9 @@ public class UserServiceTest {
 
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
                 .id(id).amount(amount.multiply(BigDecimal.valueOf(100))).build();
-        UserBalance userBalance = new UserBalance(id, balance);
+        UserBalance userBalance = new UserBalance(id, name, balance);
 
-        UserEntity userEntity = new UserEntity(id, balance);
+        UserEntity userEntity = new UserEntity(id, name, balance);
 
         when(userRepo.findById(id)).thenReturn(Optional.of(userEntity));
 
@@ -139,11 +143,11 @@ public class UserServiceTest {
         userService = new UserService(userPort);
         UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(amount).build();
 
-        UserBalance userBalance = new UserBalance(id, balance);
-        UserBalance afterUseUserBalance = new UserBalance(id, balance.subtract( amount));
+        UserBalance userBalance = new UserBalance(id, name, balance);
+        UserBalance afterUseUserBalance = new UserBalance(id, name, balance.subtract( amount));
 
         when(userPort.getUserBalance(id)).thenReturn(userBalance);
-        when(userPort.save(any(UserBalance.class))).thenReturn(1);
+        when(userPort.save(any(UserBalance.class), eq(TransactionType.USE), eq(amount))).thenReturn(afterUseUserBalance);
 
         UserBalance userBalanceResult = userService.useUserBalance(userBalanceRequest);
 
@@ -157,7 +161,7 @@ public class UserServiceTest {
         userService = new UserService(userPersistenceAdapter);
 
         UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(BigDecimal.ZERO).build();
-        UserEntity userEntity = new UserEntity(id, balance);
+        UserEntity userEntity = new UserEntity(id, name, balance);
 
         when(userRepo.findById(id)).thenReturn(Optional.of(userEntity));
 
@@ -177,7 +181,7 @@ public class UserServiceTest {
         userService = new UserService(userPersistenceAdapter);
 
         UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(amount).build();
-        UserEntity userEntity = new UserEntity(id, BigDecimal.ZERO);
+        UserEntity userEntity = new UserEntity(id, name, BigDecimal.ZERO);
 
         when(userRepo.findById(id)).thenReturn(Optional.of(userEntity));
 

@@ -1,10 +1,9 @@
 package kr.hhplus.be.server.user.infrastructure.persistence.repository;
 
-import kr.hhplus.be.server.user.infrastructure.persistence.entity.UserEntity;
+import kr.hhplus.be.server.user.infrastructure.persistence.entity.BalanceTransactionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
-    UserEntity findById(long id);
+public interface BalanceTransactionRepository extends JpaRepository<BalanceTransactionEntity, Long> {
 }

@@ -5,6 +5,7 @@ import kr.hhplus.be.server.user.application.dto.UserBalanceRequest;
 import kr.hhplus.be.server.config.exception.ErrorCode;
 import kr.hhplus.be.server.config.exception.UserException;
 import kr.hhplus.be.server.user.domain.enumtype.TransactionType;
+import kr.hhplus.be.server.user.domain.model.BalanceTransaction;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
 import kr.hhplus.be.server.user.application.port.UserPort;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class UserService {
 
     private final Striped<Lock> stripedLocks = Striped.lazyWeakLock(1024);
 
-
+    // 잔액 충전
     @Transactional
     public UserBalance chargeUserBalance(UserBalanceRequest userBalanceRequest){
         return executeWithLock(userBalanceRequest,
@@ -33,6 +34,7 @@ public class UserService {
                 TransactionType.CHARGE);
     }
 
+    // 잔액 사용
     @Transactional
     public UserBalance useUserBalance(UserBalanceRequest userBalanceRequest) {
        return executeWithLock(userBalanceRequest,
@@ -40,11 +42,12 @@ public class UserService {
                TransactionType.USE);
     }
 
+    // 잔액 조회
     public UserBalance getUserBalance(Long userId){
-
         return userPort.getUserBalance(userId);
     }
 
+    // 동시성 제어 - Lock 추가 템플릿 메서드 패턴 적용
     public UserBalance executeWithLock(UserBalanceRequest userBalanceRequest, Function<UserBalance, UserBalance> operation, TransactionType type){
         Lock lock = stripedLocks.get(userBalanceRequest.getId());
         boolean acquired = false;
@@ -58,13 +61,9 @@ public class UserService {
 
             UserBalance userBalance = getUserBalance(userBalanceRequest.getId());
             UserBalance updated = operation.apply(userBalance);
-            int cnt = userPort.save(updated);
 
-            if (cnt == 0) {
-                throw new UserException(ErrorCode.CHARGE_BALANCE_FAILED);
-            }
+            userPort.save(updated, type, userBalanceRequest.getAmount());
 
-            userPort.insertUserBalanceHistory(updated.getId(), type, userBalanceRequest.getAmount());
             return updated;
         } catch (InterruptedException e) {
             log.error("오류 발생");
