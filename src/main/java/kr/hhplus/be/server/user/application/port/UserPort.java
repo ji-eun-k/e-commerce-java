@@ -5,7 +5,7 @@ import kr.hhplus.be.server.user.domain.model.UserBalance;
 
 import java.math.BigDecimal;
 
-public interface UserRepository {
+public interface UserPort {
 
     UserBalance getUserBalance(Long id);
 

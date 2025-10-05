@@ -2,6 +2,7 @@ package kr.hhplus.be.server.user.domain.model;
 
 import kr.hhplus.be.server.config.exception.ErrorCode;
 import kr.hhplus.be.server.config.exception.UserException;
+import kr.hhplus.be.server.user.infrastructure.persistence.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,10 @@ import java.math.BigDecimal;
 public class UserBalance {
     private Long id;
     private BigDecimal balance;
+
+    public static UserBalance create(Long id, BigDecimal balance){
+        return new UserBalance(id, balance);
+    }
 
     // 잔액 충전
     public UserBalance chargeBalance(BigDecimal amount) {

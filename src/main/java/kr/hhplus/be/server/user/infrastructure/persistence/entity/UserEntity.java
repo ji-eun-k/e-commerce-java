@@ -26,5 +26,17 @@ public class UserEntity {
     @Column(nullable = false)
     @LastModifiedDate LocalDateTime updatedAt;
 
+    public UserEntity(long id, BigDecimal balance){
+        this.id = id;
+        this.balance = balance;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
 }
 

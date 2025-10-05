@@ -13,7 +13,7 @@ import kr.hhplus.be.server.config.exception.OrderException;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.application.port.OrderRepository;
 import kr.hhplus.be.server.product.application.port.ProductRepository;
-import kr.hhplus.be.server.user.application.port.UserRepository;
+import kr.hhplus.be.server.user.application.port.UserPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,7 +47,7 @@ public class OrderServiceTest {
     private OrderRepository orderRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserPort userPort;
 
     @Mock
     private ProductRepository productRepository;

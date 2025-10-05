@@ -6,7 +6,7 @@ import kr.hhplus.be.server.config.exception.ErrorCode;
 import kr.hhplus.be.server.config.exception.UserException;
 import kr.hhplus.be.server.user.domain.enumtype.TransactionType;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
-import kr.hhplus.be.server.user.application.port.UserRepository;
+import kr.hhplus.be.server.user.application.port.UserPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.util.concurrent.locks.Lock;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
+    private final UserPort userPort;
 
     private final Striped<Lock> stripedLocks = Striped.lazyWeakLock(1024);
 
@@ -41,12 +41,12 @@ public class UserService {
             UserBalance userBalance = getUserBalance(userBalanceRequest.getId());
 
             UserBalance afterChargeUserBalance = userBalance.chargeBalance(userBalanceRequest.getAmount());
-            int cnt = userRepository.chargeUserBalance(afterChargeUserBalance); // 잔액 충전
+            int cnt = userPort.chargeUserBalance(afterChargeUserBalance); // 잔액 충전
 
             if (cnt == 0) {
                 throw new UserException(ErrorCode.CHARGE_BALANCE_FAILED);
             }
-            userRepository.insertUserBalanceHistory(afterChargeUserBalance.getId(), TransactionType.CHARGE, userBalanceRequest.getAmount());
+            userPort.insertUserBalanceHistory(afterChargeUserBalance.getId(), TransactionType.CHARGE, userBalanceRequest.getAmount());
 
             return afterChargeUserBalance;
         } catch (InterruptedException e) {
@@ -77,12 +77,12 @@ public class UserService {
             UserBalance userBalance = getUserBalance(userBalanceRequest.getId());
 
             UserBalance afterUseUserBalance = userBalance.useBalance(userBalanceRequest.getAmount());
-            int cnt = userRepository.useUserBalance(afterUseUserBalance); // 잔액 사용
+            int cnt = userPort.useUserBalance(afterUseUserBalance); // 잔액 사용
 
             if (cnt == 0) {
                 throw new UserException(ErrorCode.CHARGE_BALANCE_FAILED);
             }
-            userRepository.insertUserBalanceHistory(afterUseUserBalance.getId(), TransactionType.USE, userBalanceRequest.getAmount());
+            userPort.insertUserBalanceHistory(afterUseUserBalance.getId(), TransactionType.USE, userBalanceRequest.getAmount());
 
             return afterUseUserBalance;
         } catch (InterruptedException e) {
@@ -96,11 +96,8 @@ public class UserService {
     }
 
     public UserBalance getUserBalance(Long userId){
-        UserBalance userBalance = userRepository.getUserBalance(userId);
-        if (ObjectUtils.isEmpty(userBalance)) {
-            throw new UserException(ErrorCode.USER_NOT_FOUND);
-        }
-        return userBalance;
+
+        return userPort.getUserBalance(userId);
     }
 
 
