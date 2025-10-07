@@ -12,7 +12,7 @@ import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.config.exception.OrderException;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.application.port.OrderRepository;
-import kr.hhplus.be.server.product.application.port.ProductRepository;
+import kr.hhplus.be.server.product.application.port.ProductPort;
 import kr.hhplus.be.server.user.application.port.UserPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ public class OrderServiceTest {
     private UserPort userPort;
 
     @Mock
-    private ProductRepository productRepository;
+    private ProductPort productPort;
 
     @Mock
     private PaymentService paymentService;

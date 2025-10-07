@@ -4,14 +4,12 @@ import kr.hhplus.be.server.config.exception.ErrorCode;
 import kr.hhplus.be.server.config.exception.UserException;
 import kr.hhplus.be.server.user.application.port.UserPort;
 import kr.hhplus.be.server.user.domain.enumtype.TransactionType;
-import kr.hhplus.be.server.user.domain.model.BalanceTransaction;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
 import kr.hhplus.be.server.user.infrastructure.persistence.entity.BalanceTransactionEntity;
 import kr.hhplus.be.server.user.infrastructure.persistence.entity.UserEntity;
-import kr.hhplus.be.server.user.infrastructure.persistence.repository.BalanceTransactionRepository;
+import kr.hhplus.be.server.user.infrastructure.persistence.repository.BalanceTransactionJpaRepository;
 import kr.hhplus.be.server.user.infrastructure.persistence.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -21,7 +19,7 @@ import java.math.BigDecimal;
 public class UserPersistenceAdapter implements UserPort {
 
     private final UserJpaRepository userRepository;
-    private final BalanceTransactionRepository balanceTransactionRepository;
+    private final BalanceTransactionJpaRepository balanceTransactionJpaRepository;
 
     // 잔액 조회
     @Override
@@ -36,7 +34,7 @@ public class UserPersistenceAdapter implements UserPort {
         UserEntity userEntity = toUserEntity(userBalance);
         UserEntity saved = userRepository.save(userEntity);
         BalanceTransactionEntity balanceEntity = new BalanceTransactionEntity(saved, transactionType, amount, userBalance.getBalance());
-        balanceTransactionRepository.save(balanceEntity);
+        balanceTransactionJpaRepository.save(balanceEntity);
         return toUserDomain(saved);
     }
 

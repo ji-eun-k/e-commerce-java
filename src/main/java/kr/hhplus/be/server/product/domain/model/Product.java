@@ -16,6 +16,4 @@ public class Product {
     private ProductCategory category;
     private String productName;
     private BigDecimal price;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

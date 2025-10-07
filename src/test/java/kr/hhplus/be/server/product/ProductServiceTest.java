@@ -10,7 +10,7 @@ import kr.hhplus.be.server.config.exception.ProductException;
 import kr.hhplus.be.server.product.domain.enumtype.ProductCategory;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductInventory;
-import kr.hhplus.be.server.product.application.port.ProductRepository;
+import kr.hhplus.be.server.product.application.port.ProductPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,21 +39,19 @@ public class ProductServiceTest {
     private ProductService productService;
 
     @Mock
-    private ProductRepository productRepository;
+    private ProductPort productPort;
 
     private Integer size;
     private Integer pageNo;
-    private LocalDateTime fixTime;
     Page<Product> mockProducts;
 
     @BeforeEach
     public void setup() {
         size = 5;
         pageNo = 0;
-        fixTime = LocalDateTime.now();
 
-        List<Product> productList = List.of(new Product(1L, ProductCategory.FASHION, "바지", BigDecimal.valueOf(50000), fixTime, fixTime),
-                new Product(2L, ProductCategory.ELECTRONICS, "게이밍 노트북", BigDecimal.valueOf(1450000), fixTime, fixTime));
+        List<Product> productList = List.of(new Product(1L, ProductCategory.FASHION, "바지", BigDecimal.valueOf(50000)),
+                new Product(2L, ProductCategory.ELECTRONICS, "게이밍 노트북", BigDecimal.valueOf(1450000)));
         Pageable pageable = PageRequest.of(pageNo, size);
         mockProducts = new PageImpl<>(productList, pageable, productList.size());
     }
@@ -62,7 +60,7 @@ public class ProductServiceTest {
     public void 상품_목록_조회_성공(){
 
         // given
-        ProductSearchRequest productSearchRequest = ProductSearchRequest.builder().category(ProductCategory.ALL).size(size).pageNo(pageNo).build();
+        ProductSearchRequest productSearchRequest = ProductSearchRequest.builder().size(size).pageNo(pageNo).build();
 
         when(productService.getProducts(productSearchRequest)).thenReturn(mockProducts);
 
@@ -110,18 +108,18 @@ public class ProductServiceTest {
     @Test
     public void 상품_재고차감_테스트(){
         ProductInventory productInventory = new ProductInventory(1L, 1);
-        when(productRepository.getProductInventory(1L)).thenReturn(productInventory);
+        when(productPort.getProductInventory(1L)).thenReturn(productInventory);
 
         productService.decreaseProductInventory(1L, 1);
 
-        verify(productRepository).saveProductInventory(productInventory);
+        verify(productPort).saveProductInventory(productInventory);
 
     }
 
     @Test
     public void 상품_재고차감_수량부족_실패(){
         ProductInventory productInventory = new ProductInventory(1L, 1);
-        when(productRepository.getProductInventory(1L)).thenReturn(productInventory);
+        when(productPort.getProductInventory(1L)).thenReturn(productInventory);
 
 
         ProductException exception = assertThrows(
@@ -138,7 +136,7 @@ public class ProductServiceTest {
     @Test
     public void 상품_재고차감_잘못된상품수량_실패(){
         ProductInventory productInventory = new ProductInventory(1L, 1);
-        when(productRepository.getProductInventory(1L)).thenReturn(productInventory);
+        when(productPort.getProductInventory(1L)).thenReturn(productInventory);
 
 
         ProductException exception = assertThrows(
@@ -158,8 +156,8 @@ public class ProductServiceTest {
         OrderItem orderItem2 = OrderItem.builder().productId(3L).quantity(1).build();
         List<OrderItem> orderItemList = List.of(orderItem1, orderItem2);
 
-        when(productRepository.getProductPrice(1L)).thenReturn(BigDecimal.valueOf(10000));
-        when(productRepository.getProductPrice(3L)).thenReturn(BigDecimal.valueOf(50000));
+        when(productPort.getProductPrice(1L)).thenReturn(BigDecimal.valueOf(10000));
+        when(productPort.getProductPrice(3L)).thenReturn(BigDecimal.valueOf(50000));
 
         ProductOrderDetail product1 = ProductOrderDetail.of(orderItem1, BigDecimal.valueOf(10000));
         ProductOrderDetail product2 = ProductOrderDetail.of(orderItem2, BigDecimal.valueOf(50000));
@@ -178,7 +176,7 @@ public class ProductServiceTest {
         OrderItem orderItem1 = OrderItem.builder().productId(1L).quantity(2).build();
         List<OrderItem> orderItemList = List.of(orderItem1);
 
-        when(productRepository.getProductPrice(1L)).thenReturn(null);
+        when(productPort.getProductPrice(1L)).thenReturn(null);
 
         ProductException exception = assertThrows(
                 ProductException.class,

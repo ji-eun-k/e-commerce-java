@@ -13,6 +13,10 @@ public class ProductInventory {
     private Long productId;
     private int inventory;
 
+    public static ProductInventory empty(long productId){
+        return new ProductInventory(productId, 0);
+    }
+
     public void decreaseProductInventory(int orderQuantity){
         validation(orderQuantity, inventory);
         inventory -= orderQuantity;

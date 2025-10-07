@@ -31,4 +31,28 @@ public class ProductEntity {
     @Column(nullable = false)
     @LastModifiedDate
     LocalDateTime updatedAt;
+
+    public ProductEntity(ProductCategory category, String productName, BigDecimal price) {
+        this.category = category;
+        this.productName = productName;
+        this.price = price;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public ProductCategory getCategory() {
+        return category;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
 }

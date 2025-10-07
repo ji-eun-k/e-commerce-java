@@ -9,14 +9,14 @@ spring:
     name: HangHaePlusDataSource
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
-      maximum-pool-size: 3
+      maximum-pool-size: 20
       connection-timeout: 10000
       max-lifetime: 60000
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     open-in-view: false
     generate-ddl: false
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: update
     properties:

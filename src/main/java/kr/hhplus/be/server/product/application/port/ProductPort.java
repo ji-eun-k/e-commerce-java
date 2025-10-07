@@ -10,13 +10,12 @@ import org.springframework.data.jpa.repository.Lock;
 
 import java.math.BigDecimal;
 
-public interface ProductRepository {
+public interface ProductPort {
     Page<Product> getProducts(ProductSearchRequest productSearchRequest, Pageable pageable);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE) // 비관적락으로 재고 정합성 확보
     ProductInventory getProductInventory(Long productId);
 
-    int saveProductInventory(ProductInventory productInventory);
+    ProductInventory saveProductInventory(ProductInventory productInventory);
 
     BigDecimal getProductPrice(Long productId);
 }
