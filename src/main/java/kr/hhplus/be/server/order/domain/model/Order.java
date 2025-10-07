@@ -19,10 +19,10 @@ public class Order {
     private Long userId;
     private LocalDate orderDate;
     private BigDecimal totalPrice;
+    private BigDecimal finalPrice;
     private Long issuedCouponId;
     private OrderStatus orderStatus;
     private LocalDateTime voidedAt;
-    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
 
@@ -30,9 +30,9 @@ public class Order {
         return Order.builder().userId(orderRequest.getUserId())
                 .orderDate(LocalDate.now())
                 .totalPrice(productOrderResult.getTotalPrice())
+                .finalPrice(productOrderResult.getTotalPrice())
                 .issuedCouponId(orderRequest.getIssuedCouponId())
                 .orderStatus(OrderStatus.PENDING)
-                .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now()).build();
     }
 }

@@ -11,7 +11,7 @@ import kr.hhplus.be.server.product.application.service.ProductService;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.config.exception.OrderException;
 import kr.hhplus.be.server.order.domain.model.Order;
-import kr.hhplus.be.server.order.application.port.OrderRepository;
+import kr.hhplus.be.server.order.application.port.OrderPort;
 import kr.hhplus.be.server.product.application.port.ProductPort;
 import kr.hhplus.be.server.user.application.port.UserPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +44,7 @@ public class OrderServiceTest {
     private UserService userService;
 
     @Mock
-    private OrderRepository orderRepository;
+    private OrderPort orderPort;
 
     @Mock
     private UserPort userPort;
@@ -77,7 +77,7 @@ public class OrderServiceTest {
         OrderRequest orderRequest = OrderRequest.builder().userId(userId).orderItems(List.of(orderItem1, orderItem2)).build();
         ProductOrderResult productOrderResult = ProductOrderResult.of(totalPrice, productOrderDetails);
 
-        when(orderRepository.save(any(Order.class))).thenReturn(1L);
+        when(orderPort.save(any(Order.class))).thenReturn(1L);
         when(productService.getProductOrderPrice(orderRequest.getOrderItems())).thenReturn(productOrderResult);
 
         OrderResponse orderResponse = orderService.createOrder(orderRequest);
