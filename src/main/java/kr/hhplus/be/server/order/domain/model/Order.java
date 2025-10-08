@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.order.domain.model;
 
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
+import kr.hhplus.be.server.product.application.dto.ProductOrderDetail;
 import kr.hhplus.be.server.product.application.dto.ProductOrderResult;
 import kr.hhplus.be.server.order.domain.enumtype.OrderStatus;
 import lombok.*;
@@ -8,6 +9,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,6 +26,7 @@ public class Order {
     private OrderStatus orderStatus;
     private LocalDateTime voidedAt;
     private LocalDateTime updatedAt;
+    private List<ProductOrderDetail> productOrderDetails;
 
 
     public static Order of(OrderRequest orderRequest, ProductOrderResult productOrderResult){
@@ -32,6 +35,7 @@ public class Order {
                 .totalPrice(productOrderResult.getTotalPrice())
                 .finalPrice(productOrderResult.getTotalPrice())
                 .issuedCouponId(orderRequest.getIssuedCouponId())
+                .productOrderDetails(productOrderResult.getProductOrderDetails())
                 .orderStatus(OrderStatus.PENDING)
                 .updatedAt(LocalDateTime.now()).build();
     }

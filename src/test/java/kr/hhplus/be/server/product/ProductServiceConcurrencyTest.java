@@ -3,9 +3,7 @@ package kr.hhplus.be.server.product;
 import kr.hhplus.be.server.ServerApplication;
 import kr.hhplus.be.server.product.application.port.ProductPort;
 import kr.hhplus.be.server.product.application.service.ProductService;
-import kr.hhplus.be.server.product.domain.enumtype.ProductCategory;
 import kr.hhplus.be.server.product.domain.model.ProductInventory;
-import kr.hhplus.be.server.product.infrastructure.persistence.entity.ProductEntity;
 import kr.hhplus.be.server.product.infrastructure.persistence.entity.ProductInventoryEntity;
 import kr.hhplus.be.server.product.infrastructure.persistence.repository.ProductInventoryJpaRepository;
 import kr.hhplus.be.server.product.infrastructure.persistence.repository.ProductJpaRepository;
@@ -13,11 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = ServerApplication.class)
 @Testcontainers
-public class ProductServiceIntegrationTest {
+public class ProductServiceConcurrencyTest {
     @Autowired
     private ProductPort productPort;
 
@@ -51,7 +46,7 @@ public class ProductServiceIntegrationTest {
     @Test
     public void 상품_동시재고차감_테스트() throws InterruptedException {
 
-        ProductInventoryEntity productInventoryEntity = new ProductInventoryEntity(1L, 90); // 재고 5개
+        ProductInventoryEntity productInventoryEntity = new ProductInventoryEntity(1L, 90); // 재고 90개
         ProductInventoryEntity productInventory = productInventoryJpaRepository.save(productInventoryEntity);
 
 

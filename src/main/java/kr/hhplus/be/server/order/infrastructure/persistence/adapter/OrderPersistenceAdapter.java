@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.infrastructure.persistence.adapter;
 
+import kr.hhplus.be.server.order.application.dto.OrderItem;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.application.port.OrderPort;
 import kr.hhplus.be.server.order.domain.enumtype.OrderStatus;
@@ -8,10 +9,13 @@ import kr.hhplus.be.server.order.infrastructure.persistence.entity.OrderDetailEn
 import kr.hhplus.be.server.order.infrastructure.persistence.entity.OrderEntity;
 import kr.hhplus.be.server.order.infrastructure.persistence.repository.OrderDetailJpaRepository;
 import kr.hhplus.be.server.order.infrastructure.persistence.repository.OrderJpaRepository;
+import kr.hhplus.be.server.product.application.dto.ProductOrderDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -22,8 +26,16 @@ public class OrderPersistenceAdapter implements OrderPort {
 
     @Override
     public OrderResponse save(Order order) {
+        // 주문 마스터 테이블 저장
         OrderEntity orderEntity = toOrderEntity(order);
         OrderEntity saved = orderJpaRepository.save(orderEntity);
+
+        //주문 디테일 테이블 저장
+        for(ProductOrderDetail orderDetail: order.getProductOrderDetails()) {
+            OrderDetailEntity orderDetailEntity = toOrderDetailEntity(orderDetail, saved);
+            orderDetailJpaRepository.save(orderDetailEntity);
+        }
+
         return OrderResponse.from(saved.getId(), order);
     }
 
@@ -37,6 +49,16 @@ public class OrderPersistenceAdapter implements OrderPort {
                 .finalPrice(order.getFinalPrice())
                 .issuedCouponId(order.getIssuedCouponId())
                 .voidedAt(order.getVoidedAt())
+                .build();
+    }
+
+    private OrderDetailEntity toOrderDetailEntity(ProductOrderDetail orderItem, OrderEntity orderEntity){
+        return OrderDetailEntity.builder()
+                .order(orderEntity)
+                .productId(orderItem.getProductId())
+                .quantity(orderItem.getQuantity())
+                .price(orderItem.getPrice())
+                .totalPrice(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())))
                 .build();
     }
 }

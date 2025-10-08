@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order;
 
+import kr.hhplus.be.server.common.OrderOrchestrator;
 import kr.hhplus.be.server.order.application.dto.OrderItem;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
@@ -29,13 +30,17 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
 
-    @InjectMocks
+    @Mock
     private OrderService orderService;
+
+    @InjectMocks
+    private OrderOrchestrator orderOrchestrator;
 
     @Mock
     private ProductService productService;
@@ -77,10 +82,10 @@ public class OrderServiceTest {
         OrderRequest orderRequest = OrderRequest.builder().userId(userId).orderItems(List.of(orderItem1, orderItem2)).build();
         ProductOrderResult productOrderResult = ProductOrderResult.of(totalPrice, productOrderDetails);
 
-        when(orderPort.save(any(Order.class))).thenReturn(1L);
+        when(orderService.createOrder(any(Order.class))).thenReturn(new OrderResponse(1L, totalPrice));
         when(productService.getProductOrderPrice(orderRequest.getOrderItems())).thenReturn(productOrderResult);
 
-        OrderResponse orderResponse = orderService.createOrder(orderRequest);
+        OrderResponse orderResponse = orderOrchestrator.processOrder(orderRequest);
 
         assertThat(orderResponse.getOrderId()).isEqualTo(1L);
         assertThat(orderResponse.getTotalPrice()).isEqualTo(totalPrice);
@@ -92,7 +97,7 @@ public class OrderServiceTest {
         OrderRequest orderRequest = OrderRequest.builder().userId(userId).orderItems(List.of()).build();
 
         OrderException exception = assertThrows(
-                OrderException.class, () -> orderService.createOrder(orderRequest)
+                OrderException.class, () -> orderOrchestrator.processOrder(orderRequest)
         );
 
         assertThat(exception.getCode()).isEqualTo("ORDER_PRODUCT_MISSING");
