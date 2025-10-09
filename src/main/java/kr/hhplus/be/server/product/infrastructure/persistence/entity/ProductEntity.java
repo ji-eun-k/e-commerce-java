@@ -2,6 +2,8 @@ package kr.hhplus.be.server.product.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import kr.hhplus.be.server.product.domain.enumtype.ProductCategory;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "product")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
 

@@ -1,10 +1,10 @@
 package kr.hhplus.be.server.payment.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.order.infrastructure.persistence.entity.OrderEntity;
 import kr.hhplus.be.server.payment.domain.enumtype.PaymentStatus;
+import lombok.AccessLevel;
 import lombok.Builder;
-import org.springframework.data.annotation.CreatedDate;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -18,6 +18,7 @@ import java.util.UUID;
 @Entity
 @Table(name="payment", indexes = {@Index(name = "idx_order_id", columnList = "order_id")},
 uniqueConstraints = @UniqueConstraint(name="unique_payment", columnNames = {"user_id", "idempotency_key"}))
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

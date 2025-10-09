@@ -3,6 +3,7 @@ package kr.hhplus.be.server.payment;
 import kr.hhplus.be.server.common.PaymentOrchestrator;
 import kr.hhplus.be.server.config.exception.PaymentException;
 import kr.hhplus.be.server.order.application.service.OrderService;
+import kr.hhplus.be.server.order.infrastructure.persistence.external.MessageQueueProducer;
 import kr.hhplus.be.server.payment.application.dto.PaymentRequest;
 import kr.hhplus.be.server.payment.application.dto.PaymentResponse;
 import kr.hhplus.be.server.payment.application.service.PaymentService;
@@ -41,6 +42,9 @@ public class PaymentServiceTest {
 
     @Mock
     private PaymentPort paymentPort;
+
+    @Mock
+    private MessageQueueProducer messageQueueProducer;
 
     private Long userId;
     private Long orderId;

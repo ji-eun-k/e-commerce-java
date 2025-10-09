@@ -3,6 +3,7 @@ package kr.hhplus.be.server.common;
 import kr.hhplus.be.server.config.exception.ErrorCode;
 import kr.hhplus.be.server.config.exception.PaymentException;
 import kr.hhplus.be.server.order.application.service.OrderService;
+import kr.hhplus.be.server.order.infrastructure.persistence.external.MessageQueueProducer;
 import kr.hhplus.be.server.payment.application.dto.PaymentRequest;
 import kr.hhplus.be.server.payment.application.dto.PaymentResponse;
 import kr.hhplus.be.server.payment.application.service.PaymentService;
@@ -19,6 +20,7 @@ public class PaymentOrchestrator {
     private final UserService userService;
     private final OrderService orderService;
     private final PaymentService paymentService;
+    private final MessageQueueProducer messageQueueProducer;
 
     @Transactional
     public PaymentResponse processPayment(PaymentRequest paymentRequest) {
@@ -38,6 +40,8 @@ public class PaymentOrchestrator {
             // 주문 완료 처리
             orderService.completeOrder(paymentRequest.getOrderId());
 
+            // 외부 데이터 전송
+            messageQueueProducer.sendMessage(paymentRequest.getOrderId());
             return paymentResponse;
         } catch (Exception e){
             // TODO : 주문 PENDING 상태일 시 재고 원복 후 주문 실패 처리 (이벤트 리스너 발행) 추가

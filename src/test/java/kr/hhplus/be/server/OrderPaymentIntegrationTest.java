@@ -9,11 +9,13 @@ import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.application.service.OrderService;
 import kr.hhplus.be.server.order.domain.enumtype.OrderStatus;
 import kr.hhplus.be.server.order.infrastructure.persistence.entity.OrderEntity;
+import kr.hhplus.be.server.order.infrastructure.persistence.external.MessageQueueProducer;
+import kr.hhplus.be.server.order.infrastructure.persistence.repository.OrderDetailJpaRepository;
 import kr.hhplus.be.server.order.infrastructure.persistence.repository.OrderJpaRepository;
 import kr.hhplus.be.server.payment.application.dto.PaymentRequest;
 import kr.hhplus.be.server.payment.application.dto.PaymentResponse;
 import kr.hhplus.be.server.payment.domain.enumtype.PaymentStatus;
-import kr.hhplus.be.server.product.application.dto.ProductOrderDetail;
+import kr.hhplus.be.server.payment.infrastructure.persistence.repository.PaymentJpaRepository;
 import kr.hhplus.be.server.product.application.service.ProductService;
 import kr.hhplus.be.server.product.domain.enumtype.ProductCategory;
 import kr.hhplus.be.server.product.infrastructure.persistence.entity.ProductEntity;
@@ -24,21 +26,23 @@ import kr.hhplus.be.server.user.application.dto.UserBalanceRequest;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
 import kr.hhplus.be.server.user.infrastructure.persistence.entity.UserEntity;
+import kr.hhplus.be.server.user.infrastructure.persistence.repository.BalanceTransactionJpaRepository;
 import kr.hhplus.be.server.user.infrastructure.persistence.repository.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(classes = ServerApplication.class)
 @Testcontainers
@@ -62,15 +66,27 @@ public class OrderPaymentIntegrationTest {
     @Autowired
     private UserService userService;
 
+    @MockitoBean
+    private MessageQueueProducer messageQueueProducer;
+
 
     @Autowired
     private OrderJpaRepository orderJpaRepository;
+
+    @Autowired
+    private BalanceTransactionJpaRepository balanceTransactionJpaRepository;
 
     @Autowired
     private ProductJpaRepository productJpaRepository;
 
     @Autowired
     private ProductInventoryJpaRepository productInventoryJpaRepository;
+
+    @Autowired
+    private PaymentJpaRepository paymentJpaRepository;
+
+    @Autowired
+    private OrderDetailJpaRepository orderDetailJpaRepository;
 
     private Long id;
     private BigDecimal amount;
@@ -81,11 +97,13 @@ public class OrderPaymentIntegrationTest {
 
     @BeforeEach
     void setUp() {
-
-        productJpaRepository.deleteAll();
-        productInventoryJpaRepository.deleteAll();
-        userJpaRepository.deleteAll();
+        paymentJpaRepository.deleteAll();
+        orderDetailJpaRepository.deleteAll();
         orderJpaRepository.deleteAll();
+        productInventoryJpaRepository.deleteAll();
+        productJpaRepository.deleteAll();
+        balanceTransactionJpaRepository.deleteAll();
+        userJpaRepository.deleteAll();
 
         // 유저 정보 저장
         UserEntity userEntity = new UserEntity(null, "항해", BigDecimal.ZERO);
@@ -152,6 +170,9 @@ public class OrderPaymentIntegrationTest {
         assertThat(user.isPresent()).isTrue();
         assertThat(user.get().getBalance().compareTo(BigDecimal.valueOf(16000))).isEqualTo(0);
 
+        // 외부 전송 검증
+        verify(messageQueueProducer).sendMessage(orderResponse.getOrderId());
+
     }
 
     @Test
@@ -176,6 +197,9 @@ public class OrderPaymentIntegrationTest {
 
         assertThat(exception.getCode()).isEqualTo("DUPLICATE_PAYMENT");
         assertThat(exception.getMessage()).contains("이미 결제");
+
+        // 외부 전송 검증
+        verify(messageQueueProducer).sendMessage(orderResponse.getOrderId());
 
     }
 
