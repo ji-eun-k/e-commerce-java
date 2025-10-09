@@ -9,4 +9,6 @@ import java.util.List;
 public interface OrderPort {
     // 내부에서 Order 테이블, OrderDetail 테이블 모두 저장하고 orderId 반환
     OrderResponse save(Order order);
+
+    void completeOrder(Long orderId);
 }

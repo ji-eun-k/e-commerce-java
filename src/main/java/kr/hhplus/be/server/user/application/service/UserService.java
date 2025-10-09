@@ -10,6 +10,7 @@ import kr.hhplus.be.server.user.domain.model.UserBalance;
 import kr.hhplus.be.server.user.application.port.UserPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
@@ -21,6 +22,7 @@ import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class UserService {
     private final UserPort userPort;
 

@@ -1,12 +1,13 @@
 package kr.hhplus.be.server.order.infrastructure.persistence.adapter;
 
-import kr.hhplus.be.server.order.application.dto.OrderItem;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.application.port.OrderPort;
 import kr.hhplus.be.server.order.domain.enumtype.OrderStatus;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.infrastructure.persistence.entity.OrderDetailEntity;
 import kr.hhplus.be.server.order.infrastructure.persistence.entity.OrderEntity;
+import kr.hhplus.be.server.order.infrastructure.persistence.entity.QOrderEntity;
 import kr.hhplus.be.server.order.infrastructure.persistence.repository.OrderDetailJpaRepository;
 import kr.hhplus.be.server.order.infrastructure.persistence.repository.OrderJpaRepository;
 import kr.hhplus.be.server.product.application.dto.ProductOrderDetail;
@@ -14,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -23,6 +22,7 @@ public class OrderPersistenceAdapter implements OrderPort {
 
     private final OrderJpaRepository orderJpaRepository;
     private final OrderDetailJpaRepository orderDetailJpaRepository;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public OrderResponse save(Order order) {
@@ -37,6 +37,15 @@ public class OrderPersistenceAdapter implements OrderPort {
         }
 
         return OrderResponse.from(saved.getId(), order);
+    }
+
+    @Override
+    public void completeOrder(Long orderId) {
+        QOrderEntity order = QOrderEntity.orderEntity;
+        queryFactory.update(order)
+                .set(order.orderStatus, OrderStatus.COMPLETED)
+                .where(order.id.eq(orderId))
+                .execute();
     }
 
     private OrderEntity toOrderEntity(Order order) {

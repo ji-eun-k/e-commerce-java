@@ -22,4 +22,14 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(UserException e) {
         return ResponseEntity.status(e.getHttpStatus()).body(new ErrorResponse(e.getCode(), e.getMessage()));
     }
+
+    @ExceptionHandler(value = OrderException.class)
+    public ResponseEntity<ErrorResponse> handleException(OrderException e) {
+        return ResponseEntity.status(e.getHttpStatus()).body(new ErrorResponse(e.getCode(), e.getMessage()));
+    }
+
+    @ExceptionHandler(value = PaymentException.class)
+    public ResponseEntity<ErrorResponse> handleException(PaymentException e) {
+        return ResponseEntity.status(e.getHttpStatus()).body(new ErrorResponse(e.getCode(), e.getMessage()));
+    }
 }

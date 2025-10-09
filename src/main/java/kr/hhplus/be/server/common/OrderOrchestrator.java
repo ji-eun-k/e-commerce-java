@@ -11,21 +11,23 @@ import kr.hhplus.be.server.product.application.service.ProductService;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.user.domain.model.UserBalance;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Service
 public class OrderOrchestrator {
 
-    private UserService userService;
-    private ProductService productService;
-    private OrderService orderService;
+    private final UserService userService;
+    private final ProductService productService;
+    private final OrderService orderService;
 
     @Transactional
     public OrderResponse processOrder(OrderRequest orderRequest) {
         orderRequest.validation();
 
         // 유저 검증을 위해 호출
-        UserBalance userBalance = userService.getUserBalance(orderRequest.getUserId());
+        userService.getUserBalance(orderRequest.getUserId());
 
         // totalPrice 계산가져오기
         ProductOrderResult productOrderResult = productService.getProductOrderPrice(orderRequest.getOrderItems());

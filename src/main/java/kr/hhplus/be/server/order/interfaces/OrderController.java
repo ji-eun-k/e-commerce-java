@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RequiredArgsConstructor
 public class OrderController {
-    private OrderOrchestrator orchestrator;
+    private final OrderOrchestrator orchestrator;
 
     @PostMapping("/api/v1/orders")
     public OrderResponse createOrder(@RequestBody OrderRequest orderRequest){

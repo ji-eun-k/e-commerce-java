@@ -65,4 +65,8 @@ public class OrderEntity {
     public Long getId() {
         return id;
     }
+
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
 }

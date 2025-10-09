@@ -1,31 +1,32 @@
 package kr.hhplus.be.server.payment.application.service;
 
+import kr.hhplus.be.server.config.exception.ErrorCode;
+import kr.hhplus.be.server.config.exception.PaymentException;
 import kr.hhplus.be.server.payment.application.dto.PaymentRequest;
 import kr.hhplus.be.server.payment.application.dto.PaymentResponse;
-import kr.hhplus.be.server.user.application.dto.UserBalanceRequest;
 import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.payment.domain.model.Payment;
-import kr.hhplus.be.server.payment.application.port.PaymentRepository;
-import kr.hhplus.be.server.user.domain.model.UserBalance;
+import kr.hhplus.be.server.payment.application.port.PaymentPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
+@Service
 public class PaymentService {
-    private final PaymentRepository paymentRepository;
+    private final PaymentPort paymentPort;
     private final UserService userService;
 
-    @Transactional
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
-        // 포인트 사용
-        UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(paymentRequest.getUserId()).amount(paymentRequest.getTotalPrice()).build();
-        UserBalance userBalance = userService.useUserBalance(userBalanceRequest);
-
         // 결제 내역 저장
-        Payment payment = paymentRepository.save(Payment.from(paymentRequest));
-
-        // 추후 이벤트 리스너로 주문 상태변경 이벤트 발행 (PENDING > COMPLETED)
+        Payment payment = paymentPort.save(Payment.from(paymentRequest));
 
         return PaymentResponse.of(payment);
+    }
+
+    public Boolean checkIdempotencyKey(Long userId, UUID idempotencyKey){
+        // 멱등성 체크
+        return paymentPort.checkIdempotencyKey(userId, idempotencyKey);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @RequiredArgsConstructor
 public class PaymentController {
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
 
     @PostMapping("/api/v1/payments")
     public PaymentResponse createPayment(PaymentRequest paymentRequest){
