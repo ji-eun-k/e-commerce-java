@@ -1,19 +1,20 @@
 package kr.hhplus.be.server.order;
 
-import kr.hhplus.be.server.application.order.dto.OrderItem;
-import kr.hhplus.be.server.application.order.dto.OrderRequest;
-import kr.hhplus.be.server.application.order.dto.OrderResponse;
-import kr.hhplus.be.server.application.order.service.OrderService;
-import kr.hhplus.be.server.application.payment.service.PaymentService;
-import kr.hhplus.be.server.application.product.dto.ProductOrderDetail;
-import kr.hhplus.be.server.application.product.dto.ProductOrderResult;
-import kr.hhplus.be.server.application.product.service.ProductService;
-import kr.hhplus.be.server.application.user.service.UserService;
-import kr.hhplus.be.server.domain.exception.OrderException;
-import kr.hhplus.be.server.domain.order.model.Order;
-import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.product.repository.ProductRepository;
-import kr.hhplus.be.server.domain.user.repository.UserRepository;
+import kr.hhplus.be.server.common.OrderOrchestrator;
+import kr.hhplus.be.server.order.application.dto.OrderItem;
+import kr.hhplus.be.server.order.application.dto.OrderRequest;
+import kr.hhplus.be.server.order.application.dto.OrderResponse;
+import kr.hhplus.be.server.order.application.service.OrderService;
+import kr.hhplus.be.server.payment.application.service.PaymentService;
+import kr.hhplus.be.server.product.application.dto.ProductOrderDetail;
+import kr.hhplus.be.server.product.application.dto.ProductOrderResult;
+import kr.hhplus.be.server.product.application.service.ProductService;
+import kr.hhplus.be.server.user.application.service.UserService;
+import kr.hhplus.be.server.config.exception.OrderException;
+import kr.hhplus.be.server.order.domain.model.Order;
+import kr.hhplus.be.server.order.application.port.OrderPort;
+import kr.hhplus.be.server.product.application.port.ProductPort;
+import kr.hhplus.be.server.user.application.port.UserPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,13 +30,17 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
 
-    @InjectMocks
+    @Mock
     private OrderService orderService;
+
+    @InjectMocks
+    private OrderOrchestrator orderOrchestrator;
 
     @Mock
     private ProductService productService;
@@ -44,13 +49,13 @@ public class OrderServiceTest {
     private UserService userService;
 
     @Mock
-    private OrderRepository orderRepository;
+    private OrderPort orderPort;
 
     @Mock
-    private UserRepository userRepository;
+    private UserPort userPort;
 
     @Mock
-    private ProductRepository productRepository;
+    private ProductPort productPort;
 
     @Mock
     private PaymentService paymentService;
@@ -77,10 +82,10 @@ public class OrderServiceTest {
         OrderRequest orderRequest = OrderRequest.builder().userId(userId).orderItems(List.of(orderItem1, orderItem2)).build();
         ProductOrderResult productOrderResult = ProductOrderResult.of(totalPrice, productOrderDetails);
 
-        when(orderRepository.save(any(Order.class))).thenReturn(1L);
+        when(orderService.createOrder(any(Order.class))).thenReturn(new OrderResponse(1L, totalPrice));
         when(productService.getProductOrderPrice(orderRequest.getOrderItems())).thenReturn(productOrderResult);
 
-        OrderResponse orderResponse = orderService.createOrder(orderRequest);
+        OrderResponse orderResponse = orderOrchestrator.processOrder(orderRequest);
 
         assertThat(orderResponse.getOrderId()).isEqualTo(1L);
         assertThat(orderResponse.getTotalPrice()).isEqualTo(totalPrice);
@@ -92,7 +97,7 @@ public class OrderServiceTest {
         OrderRequest orderRequest = OrderRequest.builder().userId(userId).orderItems(List.of()).build();
 
         OrderException exception = assertThrows(
-                OrderException.class, () -> orderService.createOrder(orderRequest)
+                OrderException.class, () -> orderOrchestrator.processOrder(orderRequest)
         );
 
         assertThat(exception.getCode()).isEqualTo("ORDER_PRODUCT_MISSING");

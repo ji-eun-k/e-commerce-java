@@ -1,11 +1,15 @@
 package kr.hhplus.be.server.user;
 
-import kr.hhplus.be.server.application.user.dto.UserBalanceRequest;
-import kr.hhplus.be.server.application.user.service.UserService;
-import kr.hhplus.be.server.domain.exception.ProductException;
-import kr.hhplus.be.server.domain.exception.UserException;
-import kr.hhplus.be.server.domain.user.model.UserBalance;
-import kr.hhplus.be.server.domain.user.repository.UserRepository;
+import kr.hhplus.be.server.user.application.dto.UserBalanceRequest;
+import kr.hhplus.be.server.user.application.service.UserService;
+import kr.hhplus.be.server.config.exception.UserException;
+import kr.hhplus.be.server.user.domain.enumtype.TransactionType;
+import kr.hhplus.be.server.user.domain.model.UserBalance;
+import kr.hhplus.be.server.user.application.port.UserPort;
+import kr.hhplus.be.server.user.infrastructure.persistence.adapter.UserPersistenceAdapter;
+import kr.hhplus.be.server.user.infrastructure.persistence.entity.UserEntity;
+import kr.hhplus.be.server.user.infrastructure.persistence.repository.UserJpaRepository;
+import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,41 +19,51 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
-
-    @InjectMocks
-    private UserService userService;
+    @Mock
+    private UserPort userPort;
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userRepo;
+
+    @InjectMocks
+    private UserPersistenceAdapter userPersistenceAdapter;
+
+    private UserService userService;
 
     private Long id;
+    private String name;
     private BigDecimal balance;
     private BigDecimal amount;
 
     @BeforeEach
     public void setup() {
         id = 1L;
+        name = "name";
         balance = BigDecimal.valueOf(200000);
         amount = BigDecimal.valueOf(100000);
     }
 
     @Test
     public void 잔액_충전_성공(){
+        userService = new UserService(userPort);
+
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
                 .id(id).amount(amount).build();
-        UserBalance userBalance = new UserBalance(id, balance);
-        UserBalance afterChargeUserBalance = new UserBalance(id, balance.add( amount));
+        UserBalance userBalance = new UserBalance(id, name, balance);
+        UserBalance afterChargeUserBalance = new UserBalance(id, name, balance.add( amount));
 
-        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
-        when(userRepository.chargeUserBalance(any(UserBalance.class))).thenReturn(1);
+        when(userPort.getUserBalance(id)).thenReturn(userBalance);
+        when(userPort.save(any(UserBalance.class), eq(TransactionType.CHARGE), eq(amount))).thenReturn(afterChargeUserBalance);
 
         UserBalance userBalanceResult = userService.chargeUserBalance(chargeBalanceRequest);
 
@@ -59,9 +73,12 @@ public class UserServiceTest {
 
     @Test
     public void 잔액_충전_실패_사용자없음(){
+        userService = new UserService(userPersistenceAdapter);
+
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
                 .id(id).amount(amount).build();
-        when(userRepository.getUserBalance(id)).thenReturn(null);
+
+        when(userRepo.findById(id)).thenReturn(Optional.empty());
 
         UserException exception = assertThrows(
                 UserException.class,
@@ -76,11 +93,13 @@ public class UserServiceTest {
 
     @Test
     public void 잔액_충전_실패_보유가능잔액초과(){
+        userService = new UserService(userPersistenceAdapter);
+
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
                 .id(id).amount(amount).build();
-        UserBalance userBalance = new UserBalance(id, balance.multiply(BigDecimal.valueOf(100)));
+        UserEntity userEntity = new UserEntity(id, name, balance.multiply(BigDecimal.valueOf(100)));
 
-        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
+        when(userRepo.findById(id)).thenReturn(Optional.of(userEntity));
 
         UserException exception = assertThrows(
                 UserException.class,
@@ -95,11 +114,16 @@ public class UserServiceTest {
 
     @Test
     public void 잔액_충전_실패_충전금액오류(){
+        userService = new UserService(userPersistenceAdapter);
+
         UserBalanceRequest chargeBalanceRequest = UserBalanceRequest.builder()
                 .id(id).amount(amount.multiply(BigDecimal.valueOf(100))).build();
-        UserBalance userBalance = new UserBalance(id, balance);
+        UserBalance userBalance = new UserBalance(id, name, balance);
 
-        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
+        UserEntity userEntity = new UserEntity(id, name, balance);
+
+        when(userRepo.findById(id)).thenReturn(Optional.of(userEntity));
+
 
         UserException exception = assertThrows(
                 UserException.class,
@@ -115,13 +139,15 @@ public class UserServiceTest {
     
     @Test
     public void 잔액_사용_성공(){
+
+        userService = new UserService(userPort);
         UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(amount).build();
 
-        UserBalance userBalance = new UserBalance(id, balance);
-        UserBalance afterUseUserBalance = new UserBalance(id, balance.subtract( amount));
+        UserBalance userBalance = new UserBalance(id, name, balance);
+        UserBalance afterUseUserBalance = new UserBalance(id, name, balance.subtract( amount));
 
-        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
-        when(userRepository.useUserBalance(any(UserBalance.class))).thenReturn(1);
+        when(userPort.getUserBalance(id)).thenReturn(userBalance);
+        when(userPort.save(any(UserBalance.class), eq(TransactionType.USE), eq(amount))).thenReturn(afterUseUserBalance);
 
         UserBalance userBalanceResult = userService.useUserBalance(userBalanceRequest);
 
@@ -131,10 +157,14 @@ public class UserServiceTest {
 
     @Test
     public void 잔액_사용_실패_사용금액검증(){
-        UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(BigDecimal.ZERO).build();
-        UserBalance userBalance = new UserBalance(id, balance);
 
-        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
+        userService = new UserService(userPersistenceAdapter);
+
+        UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(BigDecimal.ZERO).build();
+        UserEntity userEntity = new UserEntity(id, name, balance);
+
+        when(userRepo.findById(id)).thenReturn(Optional.of(userEntity));
+
 
         UserException exception = assertThrows(
                 UserException.class,
@@ -148,10 +178,13 @@ public class UserServiceTest {
 
     @Test
     public void 잔액_사용_실패_잔액검증(){
-        UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(amount).build();
-        UserBalance userBalance = new UserBalance(id, BigDecimal.ZERO);
+        userService = new UserService(userPersistenceAdapter);
 
-        when(userRepository.getUserBalance(id)).thenReturn(userBalance);
+        UserBalanceRequest userBalanceRequest = UserBalanceRequest.builder().id(id).amount(amount).build();
+        UserEntity userEntity = new UserEntity(id, name, BigDecimal.ZERO);
+
+        when(userRepo.findById(id)).thenReturn(Optional.of(userEntity));
+
 
         UserException exception = assertThrows(
                 UserException.class,
