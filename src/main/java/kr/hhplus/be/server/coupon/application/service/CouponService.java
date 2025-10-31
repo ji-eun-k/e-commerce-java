@@ -32,4 +32,12 @@ public class CouponService {
         issuedCoupon = couponPort.issueCoupon(issuedCoupon);
         return new CouponIssueResponse(issuedCoupon.getCouponId());
     }
+
+    public Coupon selectIssuedCoupon(Long id){
+        return couponPort.selectIssuedCoupon(id);
+    }
+
+    public void updateCouponStatus(Long id){
+        couponPort.updateCouponStatus(id);
+    }
 }

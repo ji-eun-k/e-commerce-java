@@ -43,7 +43,8 @@ public enum ErrorCode {
 
     EXCEED_COUPON_LIMIT("EXCEED_COUPON_LIMIT", "준비된 쿠폰 수량이 모두 소진되었습니다.", HttpStatus.CONFLICT),
     EXCEED_MAX_COUPON("EXCEED_MAX_COUPON", "최대 보유 가능한 쿠폰 매수를 초과했습니다.", HttpStatus.UNPROCESSABLE_ENTITY), // 클라이언트가 올바른 요청을 보냈지만, 서버가 요청을 처리할 수 없음 (서버 내부 정책에 의하여 처리 불가)
-    COUPON_DOWNLOAD_TIME("COUPON_DOWNLOAD_TIME", "쿠폰 다운로드 시간이 아닙니다.", HttpStatus.BAD_REQUEST);
+    COUPON_DOWNLOAD_TIME("COUPON_DOWNLOAD_TIME", "쿠폰 다운로드 시간이 아닙니다.", HttpStatus.BAD_REQUEST),
+    MIN_PRICE_ERROR("MIN_PRICE_ERROR", "최소 주문 금액 이상 주문해야합니다.", HttpStatus.BAD_REQUEST),;
 
     private final String code;
     private final String message;

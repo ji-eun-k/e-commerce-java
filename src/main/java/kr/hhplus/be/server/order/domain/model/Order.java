@@ -29,11 +29,11 @@ public class Order {
     private List<ProductOrderDetail> productOrderDetails;
 
 
-    public static Order of(OrderRequest orderRequest, ProductOrderResult productOrderResult){
+    public static Order of(OrderRequest orderRequest, ProductOrderResult productOrderResult, BigDecimal finalPrice){
         return Order.builder().userId(orderRequest.getUserId())
                 .orderDate(LocalDate.now())
                 .totalPrice(productOrderResult.getTotalPrice())
-                .finalPrice(productOrderResult.getTotalPrice())
+                .finalPrice(finalPrice)
                 .issuedCouponId(orderRequest.getIssuedCouponId())
                 .productOrderDetails(productOrderResult.getProductOrderDetails())
                 .orderStatus(OrderStatus.PENDING)

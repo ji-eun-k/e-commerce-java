@@ -11,4 +11,8 @@ public interface CouponPort {
     boolean checkUserIssuedCoupon(Long userId, Long couponId);
 
     IssuedCoupon issueCoupon(IssuedCoupon issuedCoupon);
+
+    Coupon selectIssuedCoupon(Long id);
+
+    void updateCouponStatus(Long id);
 }

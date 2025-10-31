@@ -1,14 +1,17 @@
 package kr.hhplus.be.server.coupon.infrastructure.persistence.adapter;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.hhplus.be.server.config.exception.CouponException;
 import kr.hhplus.be.server.config.exception.ErrorCode;
 import kr.hhplus.be.server.coupon.application.port.CouponPort;
+import kr.hhplus.be.server.coupon.domain.enumtype.CouponStatus;
 import kr.hhplus.be.server.coupon.domain.model.Coupon;
 import kr.hhplus.be.server.coupon.domain.model.IssuedCoupon;
 import kr.hhplus.be.server.coupon.infrastructure.persistence.entity.CouponEntity;
 import kr.hhplus.be.server.coupon.infrastructure.persistence.entity.IssuedCouponEntity;
 import kr.hhplus.be.server.coupon.infrastructure.persistence.repository.CouponJpaRepository;
 import kr.hhplus.be.server.coupon.infrastructure.persistence.repository.IssuedCouponJpaRepository;
+import kr.hhplus.be.server.order.domain.enumtype.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +21,7 @@ public class CouponPersistenceAdapter implements CouponPort {
 
     private final CouponJpaRepository couponJpaRepository;
     private final IssuedCouponJpaRepository issuedCouponJpaRepository;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public Coupon getCouponForUpdate(Long couponId) {
@@ -44,6 +48,27 @@ public class CouponPersistenceAdapter implements CouponPort {
         IssuedCouponEntity saved = issuedCouponJpaRepository.save(couponEntity);
         issuedCoupon.assignId(saved.getId());
         return issuedCoupon;
+    }
+
+    @Override
+    public Coupon selectIssuedCoupon(Long id) {
+        IssuedCouponEntity isseudCouponEntity = issuedCouponJpaRepository.findById(id).orElseThrow(
+                () -> new CouponException(ErrorCode.COUPON_NOT_FOUND)
+        );
+
+        CouponEntity couponEntity = couponJpaRepository.findById(isseudCouponEntity.getCouponId()).orElseThrow(
+                () -> new CouponException(ErrorCode.COUPON_NOT_FOUND)
+        );
+        return toCouponDomain(couponEntity);
+    }
+
+    @Override
+    public void updateCouponStatus(Long id) {
+        QIssuedCouponEntity coupon = QIssuedCouponEntity.issuedCouponEntity;
+        queryFactory.update(coupon)
+                .set(coupon.couponStatus, CouponStatus.USED)
+                .where(coupon.id.eq(id))
+                .execute();
     }
 
     private Coupon toCouponDomain(CouponEntity couponEntity) {

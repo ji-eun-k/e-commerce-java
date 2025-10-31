@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -42,5 +45,26 @@ public class Coupon {
         }
 
         this.issuedQuantity += 1;
+    }
+
+    public BigDecimal calculateDiscountAmount(BigDecimal amount){
+
+        if(BigDecimal.valueOf(orderMinimumPrice).compareTo(amount) > 0){
+            throw new CouponException(ErrorCode.MIN_PRICE_ERROR);
+        }
+
+        if (CouponType.PERCENTAGE == couponType){
+            BigDecimal discountAmount = amount.multiply(BigDecimal.valueOf(discountValue)).divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR);
+
+            if(discountAmount.compareTo(BigDecimal.ZERO) != 0 && discountAmount.compareTo(BigDecimal.valueOf(discountLimitValue)) > 0){
+                discountAmount = BigDecimal.valueOf(discountLimitValue);
+            }
+
+            return amount.subtract(discountAmount);
+
+        } else {
+
+            return amount.subtract(BigDecimal.valueOf(discountValue));
+        }
     }
 }

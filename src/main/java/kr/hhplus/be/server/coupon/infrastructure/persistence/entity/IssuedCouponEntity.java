@@ -56,4 +56,8 @@ public class IssuedCouponEntity {
     public Long getId() {
         return id;
     }
+
+    public Long getCouponId() {
+        return couponId;
+    }
 }
